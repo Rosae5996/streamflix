@@ -2,23 +2,69 @@ import StreamFlixLayout from "@/components/StreamFlixLayout";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { Check, Crown, Zap } from "lucide-react";
-import { useState } from "react";
+import { Check, Crown, Zap, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 export default function Subscription() {
   const { isAuthenticated, user } = useAuth();
+  const [location, setLocation] = useLocation();
   const { data: plans } = trpc.plans.list.useQuery();
   const { data: mySubscription, refetch } = trpc.subscription.getMySubscription.useQuery(
     undefined,
     { enabled: isAuthenticated }
   );
+  const activateSubscription = trpc.subscription.activateSubscription.useMutation({
+    onSuccess: () => { 
+      toast.success("Suscripcion activada exitosamente"); 
+      refetch();
+      // Clean URL params
+      window.history.replaceState({}, "", "/subscription");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
   const cancelSubscription = trpc.subscription.cancelSubscription.useMutation({
-    onSuccess: () => { toast.success("Suscripción cancelada"); refetch(); },
+    onSuccess: () => { toast.success("Suscripcion cancelada"); refetch(); },
     onError: (e: any) => toast.error(e.message),
   });
 
   const [processingPlanId, setProcessingPlanId] = useState<number | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<"success" | "cancelled" | null>(null);
+
+  // Handle PayPal callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get("success");
+    const cancelled = urlParams.get("cancelled");
+    const subscriptionId = urlParams.get("subscription_id");
+    const baToken = urlParams.get("ba_token");
+    const token = urlParams.get("token");
+    
+    if (success === "1") {
+      setPaymentStatus("success");
+      // Try to activate the subscription
+      const pendingPlanId = localStorage.getItem("pendingPlanId");
+      const pendingOrderId = localStorage.getItem("pendingOrderId");
+      
+      if (pendingPlanId && isAuthenticated) {
+        activateSubscription.mutate({
+          planId: parseInt(pendingPlanId),
+          paypalOrderId: subscriptionId || baToken || token || pendingOrderId || "manual",
+          paypalSubscriptionId: subscriptionId || undefined,
+        });
+        localStorage.removeItem("pendingPlanId");
+        localStorage.removeItem("pendingOrderId");
+      }
+    } else if (cancelled === "1") {
+      setPaymentStatus("cancelled");
+      toast.error("Pago cancelado");
+      localStorage.removeItem("pendingPlanId");
+      localStorage.removeItem("pendingOrderId");
+      // Clean URL
+      window.history.replaceState({}, "", "/subscription");
+    }
+  }, [isAuthenticated]);
 
   const activePlans = plans?.filter((p) => p.isActive) ?? [];
   const currentPlanId = mySubscription?.sub?.planId;
@@ -30,25 +76,64 @@ export default function Subscription() {
       return;
     }
     if (!plan.paypalPlanId) {
-      toast.info("Este plan no tiene PayPal configurado aún. Contacta al administrador para configurar el ID de plan PayPal.");
+      toast.info("Este plan no tiene PayPal configurado aun. Contacta al administrador para configurar el ID de plan PayPal.");
       return;
     }
     setProcessingPlanId(plan.id);
+    
+    // Store pending subscription info
+    localStorage.setItem("pendingPlanId", plan.id.toString());
+    localStorage.setItem("pendingOrderId", `order_${Date.now()}`);
+    
     // Redirect to PayPal subscription page
-    const paypalUrl = `https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=${plan.paypalPlanId}&return_url=${encodeURIComponent(window.location.origin + '/subscription?success=1')}&cancel_url=${encodeURIComponent(window.location.origin + '/subscription?cancelled=1')}`;
+    const returnUrl = encodeURIComponent(`${window.location.origin}/subscription?success=1`);
+    const cancelUrl = encodeURIComponent(`${window.location.origin}/subscription?cancelled=1`);
+    const paypalUrl = `https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=${plan.paypalPlanId}&return_url=${returnUrl}&cancel_url=${cancelUrl}`;
     window.location.href = paypalUrl;
-    setProcessingPlanId(null);
   };
 
   return (
     <StreamFlixLayout>
       <div className="min-h-screen pt-24 pb-16 px-4">
         <div className="max-w-5xl mx-auto">
+          {/* Payment Status Banner */}
+          {paymentStatus === "success" && (
+            <div className="mb-8 p-4 bg-green-500/10 border border-green-500/30 rounded-xl flex items-center gap-3">
+              {activateSubscription.isPending ? (
+                <>
+                  <Loader2 className="w-5 h-5 text-green-400 animate-spin" />
+                  <div>
+                    <p className="text-green-400 font-medium">Procesando tu suscripcion...</p>
+                    <p className="text-green-400/70 text-sm">Por favor espera mientras confirmamos tu pago.</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                  <div>
+                    <p className="text-green-400 font-medium">Pago exitoso</p>
+                    <p className="text-green-400/70 text-sm">Tu suscripcion ha sido activada. Disfruta de todo el contenido.</p>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {paymentStatus === "cancelled" && (
+            <div className="mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-3">
+              <XCircle className="w-5 h-5 text-red-400" />
+              <div>
+                <p className="text-red-400 font-medium">Pago cancelado</p>
+                <p className="text-red-400/70 text-sm">Tu pago fue cancelado. Puedes intentarlo de nuevo cuando quieras.</p>
+              </div>
+            </div>
+          )}
+
           {/* Header */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#E50914]/10 border border-[#E50914]/20 rounded-full text-[#E50914] text-sm font-medium mb-4">
               <Crown size={16} />
-              Planes de suscripción
+              Planes de suscripcion
             </div>
             <h1 className="text-4xl sm:text-5xl font-black text-white mb-4">
               Elige tu plan
