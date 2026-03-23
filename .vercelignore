@@ -1,0 +1,33 @@
+# Mobile app (Expo) - not needed for web deployment
+app/
+expo-env.d.ts
+app.json
+eas.json
+
+# Development files
+.manus-logs/
+*.log
+.env.local
+.env.development
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+__tests__/
+
+# Documentation (not needed in build)
+*.md
+!README.md
+
+# Scripts that are not needed in production
+scripts/reset-project.js

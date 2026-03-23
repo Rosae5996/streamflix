@@ -66,7 +66,7 @@ async function createContext({ req, cookies }: { req: Request; cookies: Map<stri
   return {
     user,
     req,
-    res: null as any, // Vercel serverless doesn't have express res
+    res: null as any,
     cookies: Object.fromEntries(cookies),
   };
 }
@@ -90,7 +90,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const host = req.headers["x-forwarded-host"] || req.headers.host;
   const url = `${protocol}://${host}${req.url}`;
   
-  // Build headers, filtering out undefined values
+  // Build headers
   const headerEntries: [string, string][] = [];
   for (const [key, value] of Object.entries(req.headers)) {
     if (typeof value === "string") {

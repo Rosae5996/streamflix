@@ -1,9 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-/**
- * Health check endpoint for monitoring and load balancers
- * GET /api/health
- */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -28,10 +24,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Check database connection
   try {
     if (process.env.DATABASE_URL) {
-      const { drizzle } = await import("drizzle-orm/mysql2");
-      const db = drizzle(process.env.DATABASE_URL);
-      // Simple query to check connection
-      await db.execute({ sql: "SELECT 1", args: [] });
+      const db = await import("../server/db");
+      await db.getSiteSettings();
       healthCheck.checks.database = true;
     }
   } catch (error) {
@@ -45,7 +39,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const statusCode = allChecksPass ? 200 : 503;
   
-  // Add cache headers to prevent caching health check responses
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
   res.setHeader("Pragma", "no-cache");
   

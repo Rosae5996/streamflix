@@ -613,3 +613,74 @@ export async function removeFromWatchlist(userId: number, contentId: number) {
   if (!db) return;
   await db.delete(watchlist).where(and(eq(watchlist.userId, userId), eq(watchlist.contentId, contentId)));
 }
+
+// ─── PayPal Webhook Functions ─────────────────────────────────────────────────
+
+export async function activateSubscriptionByPayPalId(subscriptionId: string, endDate: Date) {
+  const db = await getDb();
+  if (!db) return;
+  
+  const now = new Date();
+  await db
+    .update(userSubscriptions)
+    .set({
+      status: "active",
+      paypalSubscriptionId: subscriptionId,
+      currentPeriodStart: now,
+      currentPeriodEnd: endDate,
+    })
+    .where(
+      or(
+        eq(userSubscriptions.paypalOrderId, subscriptionId),
+        eq(userSubscriptions.paypalSubscriptionId, subscriptionId)
+      )
+    );
+}
+
+export async function cancelSubscriptionByPayPalId(subscriptionId: string, status: string) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(userSubscriptions)
+    .set({ status: status as any })
+    .where(eq(userSubscriptions.paypalSubscriptionId, subscriptionId));
+}
+
+export async function markSubscriptionPaymentFailed(subscriptionId: string) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(userSubscriptions)
+    .set({ status: "past_due" })
+    .where(eq(userSubscriptions.paypalSubscriptionId, subscriptionId));
+}
+
+export async function markPaymentCompleted(orderId: string) {
+  const db = await getDb();
+  if (!db) return;
+  
+  const now = new Date();
+  const endDate = new Date(now);
+  endDate.setMonth(endDate.getMonth() + 1);
+  
+  await db
+    .update(userSubscriptions)
+    .set({
+      status: "active",
+      currentPeriodStart: now,
+      currentPeriodEnd: endDate,
+    })
+    .where(eq(userSubscriptions.paypalOrderId, orderId));
+}
+
+export async function markPaymentRefunded(orderId: string) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(userSubscriptions)
+    .set({ status: "cancelled" })
+    .where(eq(userSubscriptions.paypalOrderId, orderId));
+}
