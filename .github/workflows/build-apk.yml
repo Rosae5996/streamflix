@@ -1,0 +1,66 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'streamflix-mobile/**'
+      - 'app/**'
+      - 'hooks/**'
+      - 'lib/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install npm dependencies
+        run: npm install -g eas-cli
+      
+      - name: Install project dependencies
+        run: |
+          cd streamflix-mobile
+          npm install
+      
+      - name: Build APK with EAS
+        run: |
+          cd streamflix-mobile
+          eas build --platform android --wait
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: streamflix-mobile-apk
+          path: streamflix-mobile/dist/
+          retention-days: 30
+      
+      - name: Create Release
+        uses: actions/create-release@v1
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: apk-${{ github.run_number }}
+          release_name: StreamFlix Mobile APK Build ${{ github.run_number }}
+          body: |
+            Automatic APK build from GitHub Actions
+            
+            **Build Details:**
+            - Commit: ${{ github.sha }}
+            - Branch: ${{ github.ref }}
+            - Run: ${{ github.run_number }}
+            
+            Download the APK from the artifacts or releases page.
+          draft: false
+          prerelease: false
