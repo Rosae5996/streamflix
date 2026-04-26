@@ -1,14 +1,15 @@
 import { redirect } from 'next/navigation'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { UsersManagement } from '@/components/admin/users-management'
+import { createClient } from '@/lib/supabase/server'
+import { NetflixAdminSidebar } from '@/components/netflix/netflix-admin-sidebar'
+import { NetflixUsersManagement } from '@/components/netflix/netflix-users-management'
 
 export const metadata = {
-  title: 'Users - StreamFlix',
+  title: 'Users | StreamFlix',
   description: 'Manage users',
 }
 
 export default async function UsersPage() {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createClient()
 
   const {
     data: { user },
@@ -25,7 +26,7 @@ export default async function UsersPage() {
     .single()
 
   if (userData?.role !== 'admin') {
-    redirect('/dashboard')
+    redirect('/')
   }
 
   const { data: users } = await supabase
@@ -33,5 +34,12 @@ export default async function UsersPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
-  return <UsersManagement initialUsers={users || []} />
+  return (
+    <div className="flex min-h-screen bg-black">
+      <NetflixAdminSidebar />
+      <main className="flex-1 md:ml-64">
+        <NetflixUsersManagement initialUsers={users || []} />
+      </main>
+    </div>
+  )
 }

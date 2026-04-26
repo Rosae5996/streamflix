@@ -1,14 +1,15 @@
 import { redirect } from 'next/navigation'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { AdminDashboard } from '@/components/admin/admin-dashboard'
+import { createClient } from '@/lib/supabase/server'
+import { NetflixAdminSidebar } from '@/components/netflix/netflix-admin-sidebar'
+import { NetflixAdminDashboard } from '@/components/netflix/netflix-admin-dashboard'
 
 export const metadata = {
-  title: 'Admin Dashboard - StreamFlix',
+  title: 'Admin Dashboard | StreamFlix',
   description: 'Manage your streaming platform',
 }
 
 export default async function AdminPage() {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createClient()
 
   const {
     data: { user },
@@ -25,7 +26,7 @@ export default async function AdminPage() {
     .single()
 
   if (userData?.role !== 'admin') {
-    redirect('/dashboard')
+    redirect('/')
   }
 
   // Get stats
@@ -42,22 +43,30 @@ export default async function AdminPage() {
     .select('id', { count: 'exact', head: true })
     .eq('status', 'active')
 
+  const { data: recentContent } = await supabase
+    .from('content')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(5)
+
   const { data: pricingPlans } = await supabase
     .from('pricing_plans')
     .select('*')
     .eq('is_active', true)
 
-  const { data: settings } = await supabase
-    .from('admin_settings')
-    .select('*')
-
   return (
-    <AdminDashboard
-      contentCount={contentCount || 0}
-      usersCount={usersCount || 0}
-      activeSubscriptionsCount={activeSubscriptionsCount || 0}
-      pricingPlans={pricingPlans || []}
-      settings={settings || []}
-    />
+    <div className="flex min-h-screen bg-black">
+      <NetflixAdminSidebar />
+      
+      <main className="flex-1 md:ml-64">
+        <NetflixAdminDashboard
+          contentCount={contentCount || 0}
+          usersCount={usersCount || 0}
+          activeSubscriptionsCount={activeSubscriptionsCount || 0}
+          recentContent={recentContent || []}
+          pricingPlans={pricingPlans || []}
+        />
+      </main>
+    </div>
   )
 }
