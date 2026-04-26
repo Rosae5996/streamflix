@@ -1,0 +1,174 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    STREAMFLIX - ADMIN SETUP COMPLETADO
+═══════════════════════════════════════════════════════════════════════════════
+
+FECHA:        2026-04-25
+STATUS:       ✅ COMPLETADO
+USUARIO:      alfacarlos981@gmail.com
+ROL:          ADMIN
+ESTADO:       ACTIVO
+
+═══════════════════════════════════════════════════════════════════════════════
+                          TUS CREDENCIALES
+═══════════════════════════════════════════════════════════════════════════════
+
+EMAIL:                    alfacarlos981@gmail.com
+CONTRASEÑA:               8Car9loS@50419706
+ROL:                      ADMIN
+ACCESO MANAGER:           SI (mismo rol)
+ESTADO:                   ACTIVO ✅
+
+═══════════════════════════════════════════════════════════════════════════════
+                        LO QUE SE HIZO
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Paso 1: Verificar usuario en Supabase
+   - Usuario existe: alfacarlos981@gmail.com
+   - Confirmado en auth.users
+
+✅ Paso 2: Actualizar rol a ADMIN
+   - Rol: admin
+   - Tabla: public.users
+   - Confirmado: Rol actualizado
+
+✅ Paso 3: Activar cuenta
+   - Estado: Activo
+   - Acceso: Completo
+
+✅ Paso 4: Verificación Final
+   - Email: alfacarlos981@gmail.com ✓
+   - Rol: admin ✓
+   - Estado: Activo ✓
+
+═══════════════════════════════════════════════════════════════════════════════
+                        CÓMO USAR AHORA
+═══════════════════════════════════════════════════════════════════════════════
+
+PASO 1: Abre tu app en producción
+        https://tu-proyecto.vercel.app
+
+PASO 2: Click en "Login"
+
+PASO 3: Ingresa:
+        Email:      alfacarlos981@gmail.com
+        Contraseña: 8Car9loS@50419706
+
+PASO 4: Click "Sign In"
+
+RESULTADO: Ves el dashboard de admin ✅
+
+═══════════════════════════════════════════════════════════════════════════════
+                      ACCESO AL PANEL ADMIN
+═══════════════════════════════════════════════════════════════════════════════
+
+Tienes acceso a:
+
+  /admin                  - Dashboard principal
+  /admin/content          - Gestionar contenido
+  /admin/content/new      - Agregar nuevo contenido
+  /admin/audit-logs       - Ver historial de cambios
+  /admin/branding         - Personalizar site
+  /admin/users            - Gestionar usuarios
+  /account/profile        - Cambiar contraseña/email
+
+═══════════════════════════════════════════════════════════════════════════════
+                        FUNCIONALIDADES
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Admin y Manager: Misma cuenta
+   - Una cuenta con todo el acceso
+   - No hay separación entre admin y manager
+
+✅ Google Sign-In para Usuarios
+   - Los usuarios pueden registrarse con Google
+   - Se crean con rol "user" (limitado)
+   - Tú tienes acceso total como admin
+
+✅ Cambiar Contraseña Cuando Quieras
+   1. Login en tu app
+   2. Ir a /account/profile
+   3. Click "Change Password"
+   4. Ingresa contraseña actual y nueva
+
+✅ Crear Más Cuentas de Admin
+   1. En panel admin, ir a /admin/users
+   2. Click "Create Admin"
+   3. Ingresar email
+   4. Sistema genera contraseña temporaria
+
+═══════════════════════════════════════════════════════════════════════════════
+                      SI TIENES PROBLEMAS
+═══════════════════════════════════════════════════════════════════════════════
+
+PROBLEMA: "Usuario no encontrado"
+SOLUCIÓN:
+  1. Espera 1-2 minutos y recarga
+  2. Borra cookies: Ctrl+Shift+Del
+  3. Intenta en modo incógnito
+
+PROBLEMA: "Contraseña incorrecta"
+SOLUCIÓN:
+  1. Verifica: 8Car9loS@50419706
+  2. Las mayúsculas importan
+  3. Si olvidaste, usa "Forgot Password" en login
+
+PROBLEMA: "Acceso denegado" después de login
+SOLUCIÓN:
+  1. Recarga: Ctrl+Shift+R (o Cmd+Shift+R en Mac)
+  2. Cierra navegador completamente
+  3. Abre de nuevo
+
+PROBLEMA: No veo el admin panel
+SOLUCIÓN:
+  1. Ve a Supabase: https://supabase.com/dashboard
+  2. SQL Editor → New Query
+  3. Ejecuta:
+     SELECT email, role FROM public.users 
+     WHERE email = 'alfacarlos981@gmail.com';
+  4. Verifica que role = 'admin'
+
+═══════════════════════════════════════════════════════════════════════════════
+                        DATOS DE REFERENCIA
+═══════════════════════════════════════════════════════════════════════════════
+
+Usuario:      alfacarlos981@gmail.com
+Pass:         8Car9loS@50419706
+Rol:          admin
+Status:       ✅ ACTIVO
+
+App URL:      https://tu-proyecto.vercel.app
+Admin Panel:  https://tu-proyecto.vercel.app/admin
+Login:        https://tu-proyecto.vercel.app/auth/login
+
+═══════════════════════════════════════════════════════════════════════════════
+                          PRÓXIMOS PASOS
+═══════════════════════════════════════════════════════════════════════════════
+
+1. ✅ Abre tu app
+2. ✅ Login con alfacarlos981@gmail.com
+3. ✅ Explora el panel de admin
+4. ✅ Personaliza tu site en /admin/branding
+5. ✅ Sube contenido en /admin/content/new
+6. ✅ Invita otros admins si lo deseas
+7. ✅ Cambia contraseña a una más segura
+
+═══════════════════════════════════════════════════════════════════════════════
+                          CONCLUSIÓN
+═══════════════════════════════════════════════════════════════════════════════
+
+Tu cuenta de ADMIN está:
+
+  ✅ Creada
+  ✅ Configurada
+  ✅ Activa
+  ✅ Lista para usar
+
+¡YA PUEDES ACCEDER A TU APP AHORA!
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Configurado por: v0 Setup Script
+Fecha:          2026-04-25
+Status:         ✅ COMPLETADO EXITOSAMENTE
+
+═══════════════════════════════════════════════════════════════════════════════
