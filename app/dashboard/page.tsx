@@ -1,14 +1,15 @@
 import { redirect } from 'next/navigation'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
+import { NetflixNavbar } from '@/components/netflix/netflix-navbar'
 import { Dashboard } from '@/components/dashboard/dashboard'
 
 export const metadata = {
-  title: 'Dashboard - StreamFlix',
+  title: 'Dashboard | StreamFlix',
   description: 'Your personal streaming dashboard',
 }
 
 export default async function DashboardPage() {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createClient()
 
   const {
     data: { user },
@@ -39,5 +40,10 @@ export default async function DashboardPage() {
     .eq('is_active', true)
     .order('display_order', { ascending: true })
 
-  return <Dashboard user={userData} featuredContent={featuredContent || []} sections={sections || []} />
+  return (
+    <>
+      <NetflixNavbar />
+      <Dashboard user={userData} featuredContent={featuredContent || []} sections={sections || []} />
+    </>
+  )
 }
