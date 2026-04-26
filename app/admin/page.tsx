@@ -29,15 +29,23 @@ export default async function AdminPage() {
   }
 
   // Get stats
-  const { data: contentCount } = await supabase
+  const { count: contentCount } = await supabase
     .from('content')
-    .select('id')
-    .then((r) => ({ data: r.data?.length || 0 }))
+    .select('id', { count: 'exact', head: true })
 
-  const { data: usersCount } = await supabase
+  const { count: usersCount } = await supabase
     .from('users')
-    .select('id')
-    .then((r) => ({ data: r.data?.length || 0 }))
+    .select('id', { count: 'exact', head: true })
+
+  const { count: activeSubscriptionsCount } = await supabase
+    .from('user_subscriptions')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'active')
+
+  const { data: pricingPlans } = await supabase
+    .from('pricing_plans')
+    .select('*')
+    .eq('is_active', true)
 
   const { data: settings } = await supabase
     .from('admin_settings')
@@ -45,8 +53,10 @@ export default async function AdminPage() {
 
   return (
     <AdminDashboard
-      contentCount={contentCount}
-      usersCount={usersCount}
+      contentCount={contentCount || 0}
+      usersCount={usersCount || 0}
+      activeSubscriptionsCount={activeSubscriptionsCount || 0}
+      pricingPlans={pricingPlans || []}
       settings={settings || []}
     />
   )

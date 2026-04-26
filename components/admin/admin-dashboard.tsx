@@ -5,15 +5,17 @@ import { Header } from '@/components/layout/header'
 import { AdminSidebar } from '@/components/admin/admin-sidebar'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Film, Users, Settings, Plus } from 'lucide-react'
+import { Film, Users, Settings, Plus, CreditCard, TrendingUp } from 'lucide-react'
 
 interface AdminDashboardProps {
   contentCount: number
   usersCount: number
+  activeSubscriptionsCount: number
+  pricingPlans: any[]
   settings: any[]
 }
 
-export function AdminDashboard({ contentCount, usersCount, settings }: AdminDashboardProps) {
+export function AdminDashboard({ contentCount, usersCount, activeSubscriptionsCount, pricingPlans, settings }: AdminDashboardProps) {
   const maintenanceMode = settings.find(s => s.setting_key === 'maintenance_mode')?.setting_value === 'true'
 
   return (
@@ -42,7 +44,7 @@ export function AdminDashboard({ contentCount, usersCount, settings }: AdminDash
           )}
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="bg-slate-800 border-slate-700 p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -66,12 +68,20 @@ export function AdminDashboard({ contentCount, usersCount, settings }: AdminDash
             <Card className="bg-slate-800 border-slate-700 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm">Status</p>
-                  <p className="text-xl font-bold text-white mt-2">
-                    {maintenanceMode ? 'Maintenance' : 'Online'}
-                  </p>
+                  <p className="text-slate-400 text-sm">Active Subscriptions</p>
+                  <p className="text-3xl font-bold text-white mt-2">{activeSubscriptionsCount}</p>
                 </div>
-                <Settings className="h-12 w-12 text-orange-400" />
+                <CreditCard className="h-12 w-12 text-purple-400" />
+              </div>
+            </Card>
+
+            <Card className="bg-slate-800 border-slate-700 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm">Pricing Plans</p>
+                  <p className="text-3xl font-bold text-white mt-2">{pricingPlans.length}</p>
+                </div>
+                <TrendingUp className="h-12 w-12 text-orange-400" />
               </div>
             </Card>
           </div>
@@ -79,7 +89,7 @@ export function AdminDashboard({ contentCount, usersCount, settings }: AdminDash
           {/* Quick Actions */}
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-white">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link href="/admin/content/new">
                 <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12">
                   <Plus className="mr-2 h-4 w-4" />
@@ -91,6 +101,27 @@ export function AdminDashboard({ contentCount, usersCount, settings }: AdminDash
                 <Button variant="outline" className="w-full border-slate-600 text-slate-200 hover:bg-slate-700 h-12">
                   <Film className="mr-2 h-4 w-4" />
                   Manage Content
+                </Button>
+              </Link>
+
+              <Link href="/admin/pricing">
+                <Button variant="outline" className="w-full border-slate-600 text-slate-200 hover:bg-slate-700 h-12">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Manage Pricing
+                </Button>
+              </Link>
+
+              <Link href="/admin/subscriptions">
+                <Button variant="outline" className="w-full border-slate-600 text-slate-200 hover:bg-slate-700 h-12">
+                  <TrendingUp className="mr-2 h-4 w-4" />
+                  Subscriptions
+                </Button>
+              </Link>
+
+              <Link href="/admin/users">
+                <Button variant="outline" className="w-full border-slate-600 text-slate-200 hover:bg-slate-700 h-12">
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Users
                 </Button>
               </Link>
 

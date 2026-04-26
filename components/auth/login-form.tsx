@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { AlertCircle, Loader2 } from 'lucide-react'
+import { AlertCircle, Loader2, Chrome } from 'lucide-react'
 import { loginSchema } from '@/lib/schemas/auth'
 import { ZodError } from 'zod'
 
@@ -15,6 +15,7 @@ export function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [oauthLoading, setOauthLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
@@ -47,6 +48,29 @@ export function LoginForm() {
       console.error(err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    setError(null)
+    setOauthLoading(true)
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback`,
+        },
+      })
+
+      if (error) {
+        setError(error.message)
+        setOauthLoading(false)
+      }
+    } catch (err) {
+      console.error('[v0] Google sign-in error:', err)
+      setError('Failed to sign in with Google')
+      setOauthLoading(false)
     }
   }
 
@@ -99,7 +123,7 @@ export function LoginForm() {
 
         <Button
           type="submit"
-          disabled={loading}
+          disabled={loading || oauthLoading}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white"
         >
           {loading ? (
@@ -112,6 +136,35 @@ export function LoginForm() {
           )}
         </Button>
       </form>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-600"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-slate-800 text-slate-400">Or continue with</span>
+        </div>
+      </div>
+
+      <Button
+        type="button"
+        onClick={handleGoogleSignIn}
+        disabled={loading || oauthLoading}
+        variant="outline"
+        className="w-full border-slate-600 text-slate-200 hover:bg-slate-700"
+      >
+        {oauthLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Connecting...
+          </>
+        ) : (
+          <>
+            <Chrome className="mr-2 h-4 w-4" />
+            Google
+          </>
+        )}
+      </Button>
 
       <div className="text-center text-sm">
         <span className="text-slate-400">Don&apos;t have an account? </span>
